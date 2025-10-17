@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDTO } from './dto/create-task.dto';
 import { ResponseCode, ResponseMessage } from 'src/common/decorators/api-response.decorator';
@@ -12,5 +12,11 @@ export class TasksController {
     @ResponseCode('TASK_CREATED')
     create(@Body() task: CreateTaskDTO) {
         return this.tasksService.create(task);
+    }
+
+    @Get()
+    @ResponseMessage('Tasks retrieved successfully')
+    findAll() {
+        return this.tasksService.findAll();
     }
 }

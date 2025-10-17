@@ -15,4 +15,12 @@ export class TasksService {
             }
         });
     }
+
+    async findAll() {
+        return this.prisma.task.findMany({
+            orderBy: {
+                created_at: 'desc',
+            }
+        })
+    }
 }
