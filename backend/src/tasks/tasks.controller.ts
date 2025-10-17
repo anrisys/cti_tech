@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { CreateTaskDTO } from './dto/create-task.dto';
+import { CreateTaskDTO, TaskStatus } from './dto/create-task.dto';
 import { ResponseCode, ResponseMessage } from 'src/common/decorators/api-response.decorator';
 
 @Controller('tasks')
@@ -18,5 +18,15 @@ export class TasksController {
     @ResponseMessage('Tasks retrieved successfully')
     findAll() {
         return this.tasksService.findAll();
+    }
+
+    @Patch(':id/status')
+    @ResponseMessage('Task status updated successfully')
+    @ResponseCode('TASK_UPDATED')
+    updateStatus(
+        @Param('id', ParseIntPipe) id: number,
+        @Body('status') status: TaskStatus,
+    ) {
+        return this.tasksService.updateStatus(id, status);
     }
 }
