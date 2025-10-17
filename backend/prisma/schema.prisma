@@ -13,3 +13,14 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Task {
+  id Int @id @default(autoincrement())
+  title String @db.VarChar(255)
+  description String? @db.Text
+  status String @default("pending") @db.VarChar(50)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("tasks")
+}
