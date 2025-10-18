@@ -1,56 +1,71 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateTaskDTO, TaskStatus } from './dto/create-task.dto';
+import { CreateTaskDTO } from './dto/create-task.dto';
 import { ResourceNotFoundException } from 'src/common/exceptions/custom.exception';
+import { TaskStatus } from './dto/base-task.dto';
+import { UpdateTaskDTO } from './dto/update-task.dto';
 
 @Injectable()
 export class TasksService {
-    constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-    async create(task: CreateTaskDTO) {
-        return this.prisma.task.create({
-            data: {
-                title: task.title,
-                description: task.description,
-                status: task.status || TaskStatus.PENDING,
-            }
-        });
+  async create(task: CreateTaskDTO) {
+    return this.prisma.task.create({
+      data: {
+        title: task.title,
+        description: task.description,
+        status: TaskStatus.PENDING,
+      },
+    });
+  }
+
+  async findAll() {
+    return this.prisma.task.findMany({
+      orderBy: {
+        created_at: 'desc',
+      },
+    });
+  }
+
+  async findOne(id: number) {
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+    });
+
+    if (!task) {
+      throw new ResourceNotFoundException('Task', id);
     }
 
-    async findAll() {
-        return this.prisma.task.findMany({
-            orderBy: {
-                created_at: 'desc',
-            }
-        })
-    }
+    return task;
+  }
 
-    async findOne(id: number) {
-        const task = await this.prisma.task.findUnique({
-            where: {id},
-        });
+  async updateStatus(id: number, status: TaskStatus) {
+    await this.findOne(id);
 
-        if (!task) {
-            throw new ResourceNotFoundException('Task', id);
-        }
+    return this.prisma.task.update({
+      where: { id },
+      data: { status },
+    });
+  }
 
-        return task;
-    }
+  async remove(id: number) {
+    await this.findOne(id);
 
-    async updateStatus(id: number, status: TaskStatus) {
-        await this.findOne(id);
+    return this.prisma.task.delete({
+      where: { id },
+    });
+  }
 
-        return this.prisma.task.update({
-            where: {id},
-            data: {status}
-        });
-    }
+  async updateTask(id: number, task: UpdateTaskDTO) {
+    await this.findOne(id);
 
-    async remove(id: number) {
-        await this.findOne(id);
-
-        return this.prisma.task.delete({
-            where: {id}
-        })
-    }
+    return this.prisma.task.update({
+      where: { id },
+      data: {
+        title: task.title,
+        description: task.description,
+        status: task.status,
+      },
+    });
+  }
 }
