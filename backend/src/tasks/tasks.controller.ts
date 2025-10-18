@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPip
 import { TasksService } from './tasks.service';
 import { CreateTaskDTO, TaskStatus } from './dto/create-task.dto';
 import { ResponseCode, ResponseMessage } from 'src/common/decorators/api-response.decorator';
+import { UpdateTaskStatuskDTO } from './dto/update-task-status.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -25,9 +26,9 @@ export class TasksController {
     @ResponseCode('TASK_UPDATED')
     updateStatus(
         @Param('id', ParseIntPipe) id: number,
-        @Body('status') status: TaskStatus,
+        @Body() newTaskStatus: UpdateTaskStatuskDTO,
     ) {
-        return this.tasksService.updateStatus(id, status);
+        return this.tasksService.updateStatus(id, newTaskStatus.status);
     }
 
     @Delete(':id')

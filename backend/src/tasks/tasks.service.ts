@@ -31,7 +31,7 @@ export class TasksService {
         });
 
         if (!task) {
-            throw new ResourceNotFoundException('task', id);
+            throw new ResourceNotFoundException('Task', id);
         }
 
         return task;
