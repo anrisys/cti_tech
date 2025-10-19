@@ -1,5 +1,10 @@
-import { IsOptional, IsNumber, Min, IsString, IsEnum } from 'class-validator';
+import { IsOptional, IsNumber, Min, IsEnum, IsIn } from 'class-validator';
 import { Type } from 'class-transformer';
+export enum OrderByField {
+  CREATED_AT = 'created_at',
+  TITLE = 'title',
+  STATUS = 'status',
+}
 
 export class PaginationQueryDTO {
   @IsOptional()
@@ -15,12 +20,10 @@ export class PaginationQueryDTO {
   take: number = 10;
 
   @IsOptional()
-  @IsEnum(['created_at', 'title', 'status'], {
-    message: 'Invalid orderBy field',
-  })
+  @IsEnum(OrderByField, { message: 'Invalid orderBy field' })
   orderBy?: 'created_at' | 'title' | 'status' = 'created_at';
 
   @IsOptional()
-  @IsString()
+  @IsIn(['asc', 'desc'])
   order?: 'asc' | 'desc' = 'desc';
 }
