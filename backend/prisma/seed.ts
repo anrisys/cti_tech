@@ -8,7 +8,7 @@ async function main() {
 
   const TOTAL_TASKS = 100;
 
-  const statuses = ['pending', 'in_progress', 'completed'];
+  const statuses = ['pending', 'in_progress', 'done'];
 
   const tasks = Array.from({ length: TOTAL_TASKS }).map(() => ({
     title: faker.lorem.sentence({ min: 3, max: 6 }),

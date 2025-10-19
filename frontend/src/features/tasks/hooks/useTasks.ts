@@ -11,17 +11,16 @@ import type {
   ApiError,
   ApiResponse,
   Task,
+  PaginationParams,
 } from "../types/task";
 import { taskApi } from "../api/taskApi";
 import { toast } from "sonner";
 
-export const useTasks = () => {
+export const useTasks = (params: PaginationParams) => {
   return useQuery({
-    queryKey: ["tasks"],
-    queryFn: async () => {
-      const response = await taskApi.getTasks();
-      return response.data || [];
-    },
+    queryKey: ["tasks", params],
+    queryFn: () => taskApi.getTasks(params),
+    placeholderData: (previousData) => previousData,
   });
 };
 

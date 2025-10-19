@@ -2,14 +2,26 @@ import { api } from "@/lib/api";
 import type {
   ApiResponse,
   CreateTaskRequest,
+  PaginatedResponse,
+  PaginationParams,
   Task,
   UpdateTaskRequest,
   UpdateTaskStatusRequest,
 } from "../types/task";
 
 export const taskApi = {
-  getTasks: async (): Promise<ApiResponse<Task[]>> => {
-    const response = await api.get("/tasks");
+  getTasks: async (
+    params: PaginationParams
+  ): Promise<ApiResponse<PaginatedResponse<Task>>> => {
+    const queryParams = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.append(key, value.toString());
+      }
+    });
+
+    const response = await api.get(`/tasks?${queryParams}`);
     return response.data;
   },
 
