@@ -18,21 +18,37 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=${VITE_API_URL}
+    networks:
+      - app-network
+    depends_on:
+      backend:
+        condition: service_healthy
 
   backend:
     build:
-      context: ./backend
+      context: ../backend
       dockerfile: Dockerfile.dev
     container_name: cti_backend
     env_file:
       - .env
     depends_on:
-      postgres: 
+      postgres:
         condition: service_healthy
     ports:
       - "3000:3000"
     volumes:
-      - ./backend:/app
+      - ../backend:/app
       - /app/node_modules
     networks:
       - app-network
@@ -42,11 +58,11 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s
 
 volumes:
   postgres_data:
-  
+
 networks:
-  app-network: 
+  app-network:
     driver: bridge
