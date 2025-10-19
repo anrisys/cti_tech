@@ -28,5 +28,11 @@ export interface ApiResponse<T> {
 export interface UpdateTaskRequest {
   title: string;
   description?: string;
-  status?: TaskStatus;
+  status: TaskStatus;
+}
+
+export interface ApiError {
+  message: string;
+  code?: string;
+  fields?: Array<{ field: string; message: string }>;
 }

@@ -10,6 +10,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDTO } from './dto/create-task.dto';
@@ -19,6 +20,7 @@ import {
 } from 'src/common/decorators/api-response.decorator';
 import { UpdateTaskStatusDTO } from './dto/update-task-status.dto';
 import { UpdateTaskDTO } from './dto/update-task.dto';
+import { PaginationQueryDTO } from './dto/pagination-query.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -33,8 +35,8 @@ export class TasksController {
 
   @Get()
   @ResponseMessage('Tasks retrieved successfully')
-  findAll() {
-    return this.tasksService.findAll();
+  findAll(@Query() paginationQuery: PaginationQueryDTO) {
+    return this.tasksService.findAll(paginationQuery);
   }
 
   @Patch(':id/status')

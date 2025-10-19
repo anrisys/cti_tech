@@ -1,8 +1,16 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseMutationResult,
+} from "@tanstack/react-query";
 import type {
   CreateTaskRequest,
   UpdateTaskStatusRequest,
   UpdateTaskRequest,
+  ApiError,
+  ApiResponse,
+  Task,
 } from "../types/task";
 import { taskApi } from "../api/taskApi";
 import { toast } from "sonner";
@@ -26,8 +34,15 @@ export const useCreateTask = () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Task created successfully");
     },
-    onError: (error: any) => {
-      toast.error("Failed to create task");
+    onError: (error: ApiError) => {
+      const errorMessage = error.message || "Failed to create task";
+      toast.error(errorMessage);
+
+      if (error.fields && error.fields.length > 0) {
+        error.fields.forEach((fieldError) => {
+          toast.error(`${fieldError.field}: ${fieldError.message}`);
+        });
+      }
     },
   });
 };
@@ -53,7 +68,11 @@ export const useUpdateTaskStatus = () => {
   });
 };
 
-export const useUpdateTask = () => {
+export const useUpdateTask = (): UseMutationResult<
+  ApiResponse<Task>,
+  ApiError,
+  { id: number; task: UpdateTaskRequest }
+> => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -63,8 +82,15 @@ export const useUpdateTask = () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Task updated successfully");
     },
-    onError: (error: any) => {
-      toast.error("Failed to update task");
+    onError: (error: ApiError) => {
+      const errorMessage = error.message || "Failed to update task";
+      toast.error(errorMessage);
+
+      if (error.fields && error.fields.length > 0) {
+        error.fields.forEach((fieldError) => {
+          toast.error(`${fieldError.field}: ${fieldError.message}`);
+        });
+      }
     },
   });
 };

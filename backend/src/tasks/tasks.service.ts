@@ -4,6 +4,8 @@ import { CreateTaskDTO } from './dto/create-task.dto';
 import { ResourceNotFoundException } from 'src/common/exceptions/custom.exception';
 import { TaskStatus } from './dto/base-task.dto';
 import { UpdateTaskDTO } from './dto/update-task.dto';
+import { PaginationQueryDTO } from './dto/pagination-query.dto';
+import { PaginationResponseDTO } from './dto/pagination-response.dto';
 
 @Injectable()
 export class TasksService {
@@ -19,12 +21,20 @@ export class TasksService {
     });
   }
 
-  async findAll() {
-    return this.prisma.task.findMany({
+  async findAll(paginationQuery: PaginationQueryDTO) {
+    const { skip, take, orderBy, order } = paginationQuery;
+
+    const total = await this.prisma.task.count();
+
+    const tasks = await this.prisma.task.findMany({
+      skip: skip,
+      take: take,
       orderBy: {
-        created_at: 'desc',
+        [orderBy as string]: order,
       },
     });
+
+    return new PaginationResponseDTO(tasks, total, skip, take);
   }
 
   async findOne(id: number) {

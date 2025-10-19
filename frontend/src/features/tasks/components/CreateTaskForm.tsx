@@ -1,5 +1,4 @@
-import { useState } from "react";
-import type { CreateTaskRequest } from "../types/task";
+import { useForm } from "react-hook-form";
 import { useCreateTask } from "../hooks/useTasks";
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
@@ -7,6 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  createTaskSchema,
+  type CreateTaskFormData,
+} from "../schemas/task.schema";
+import { useEffect } from "react";
 
 interface CreateTaskFormProps {
   open: boolean;
@@ -19,37 +24,46 @@ export function CreateTaskForm({
   onOpenChange,
   onSuccess,
 }: CreateTaskFormProps) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-
   const createMutation = useCreateTask();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<CreateTaskFormData>({
+    resolver: zodResolver(createTaskSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+    },
+    mode: "onChange",
+  });
 
-    const taskData: CreateTaskRequest = {
-      title,
-      description: description || undefined,
+  // Reset form when dialog opens/closes
+  useEffect(() => {
+    if (open) {
+      reset();
+    }
+  }, [open, reset]);
+
+  const onSubmit = (data: CreateTaskFormData) => {
+    const taskData = {
+      title: data.title,
+      description: data.description || undefined,
     };
 
     createMutation.mutate(taskData, {
       onSuccess: () => {
-        setTitle("");
-        setDescription("");
-
         onOpenChange(false);
-
-        if (onSuccess) {
-          onSuccess();
-        }
+        onSuccess?.();
       },
     });
   };
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      setTitle("");
-      setDescription("");
+      reset();
     }
     onOpenChange(open);
   };
@@ -60,39 +74,50 @@ export function CreateTaskForm({
         <DialogHeader>
           <DialogTitle>Create New Task</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <Label htmlFor="title">Title *</Label>
             <Input
               id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
+              {...register("title")}
               placeholder="Enter task title"
+              className={errors.title ? "border-red-500" : ""}
             />
+            {errors.title && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.title.message}
+              </p>
+            )}
           </div>
+
           <div>
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              {...register("description")}
               rows={3}
               placeholder="Enter task description (optional)"
+              className={errors.description ? "border-red-500" : ""}
             />
+            {errors.description && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.description.message}
+              </p>
+            )}
           </div>
+
           <div className="flex justify-end space-x-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => handleOpenChange(false)}
-              disabled={createMutation.isPending}
+              disabled={isSubmitting || createMutation.isPending}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={createMutation.isPending || !title.trim()}
+              disabled={isSubmitting || createMutation.isPending}
             >
               {createMutation.isPending ? "Creating..." : "Create Task"}
             </Button>
