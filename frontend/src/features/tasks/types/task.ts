@@ -36,3 +36,18 @@ export interface ApiError {
   code?: string;
   fields?: Array<{ field: string; message: string }>;
 }
+
+export interface PaginationParams {
+  skip: number;
+  take: number;
+  orderBy?: "created_at" | "title" | "status";
+  order?: "asc" | "desc";
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  skip: number;
+  take: number;
+  hasNext: boolean;
+}
