@@ -14,6 +14,7 @@ import { ArrowRight, Edit, Trash2 } from "lucide-react";
 interface TaskTableProps {
   tasks: Task[];
   onEdit: (task: Task) => void;
+  isLoading?: boolean;
 }
 
 const statusOrder: Record<string, string> = {
@@ -28,7 +29,7 @@ const statusLabels: Record<string, string> = {
   done: "Done",
 };
 
-export function TaskTable({ tasks, onEdit }: TaskTableProps) {
+export function TaskTable({ tasks, onEdit, isLoading }: TaskTableProps) {
   const updateStatusMutation = useUpdateTaskStatus();
   const deleteMutation = useDeleteTask();
 
@@ -48,6 +49,14 @@ export function TaskTable({ tasks, onEdit }: TaskTableProps) {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
   return (
     <Table>
       <TableHeader>
@@ -60,55 +69,63 @@ export function TaskTable({ tasks, onEdit }: TaskTableProps) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {tasks.map((task) => (
-          <TableRow key={task.id}>
-            <TableCell className="font-medium">{task.title}</TableCell>
-            <TableCell>{task.description || "-"}</TableCell>
-            <TableCell>
-              <span
-                className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  task.status === "pending"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : task.status === "in_progress"
-                    ? "bg-blue-100 text-blue-800"
-                    : "bg-green-100 text-green-800"
-                }`}
-              >
-                {statusLabels[task.status]}
-              </span>
-            </TableCell>
-            <TableCell>
-              {new Date(task.created_at).toLocaleDateString()}
-            </TableCell>
-            <TableCell>
-              <div className="flex space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleStatusUpdate(task)}
-                  disabled={updateStatusMutation.isPending}
-                >
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onEdit(task)}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDelete(task.id)}
-                  disabled={deleteMutation.isPending}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
+        {tasks.length === 0 ? (
+          <TableRow>
+            <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+              No tasks found
             </TableCell>
           </TableRow>
-        ))}
+        ) : (
+          tasks.map((task) => (
+            <TableRow key={task.id}>
+              <TableCell className="font-medium">{task.title}</TableCell>
+              <TableCell>{task.description || "-"}</TableCell>
+              <TableCell>
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    task.status === "pending"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : task.status === "in_progress"
+                      ? "bg-blue-100 text-blue-800"
+                      : "bg-green-100 text-green-800"
+                  }`}
+                >
+                  {statusLabels[task.status]}
+                </span>
+              </TableCell>
+              <TableCell>
+                {new Date(task.created_at).toLocaleDateString()}
+              </TableCell>
+              <TableCell>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleStatusUpdate(task)}
+                    disabled={updateStatusMutation.isPending}
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onEdit(task)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(task.id)}
+                    disabled={deleteMutation.isPending}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))
+        )}
       </TableBody>
     </Table>
   );
