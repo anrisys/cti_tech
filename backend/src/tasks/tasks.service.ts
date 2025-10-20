@@ -16,7 +16,7 @@ export class TasksService {
       data: {
         title: task.title,
         description: task.description,
-        status: TaskStatus.PENDING,
+        status: task.status ? task.status : TaskStatus.PENDING,
       },
     });
   }
