@@ -28,6 +28,8 @@ export const taskApi = {
   createTask: async (task: CreateTaskRequest): Promise<ApiResponse<Task>> => {
     try {
       const response = await api.post("/tasks", task);
+      console.log("FROM taskAPI");
+      const example = 10;
       return response.data;
     } catch (error: any) {
       const errorData = error.response?.data;
