@@ -11,7 +11,6 @@ This project is build using:
 - Nestjs
 - PostgreSQL
 - Prisma as ORM
--
 
 ## Project setup
 
