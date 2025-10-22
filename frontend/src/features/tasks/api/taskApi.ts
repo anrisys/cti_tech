@@ -25,21 +25,8 @@ export const taskApi = {
     return response.data;
   },
 
-  createTask: async (task: CreateTaskRequest): Promise<ApiResponse<Task>> => {
-    try {
-      const response = await api.post("/tasks", task);
-      console.log("FROM taskAPI");
-      const example = 10;
-      return response.data;
-    } catch (error: any) {
-      const errorData = error.response?.data;
-      throw {
-        message: errorData?.message || "Failed to create task",
-        code: errorData?.code,
-        fields: errorData?.fields,
-      };
-    }
-  },
+  createTask: async (task: CreateTaskRequest) =>
+    handleApiCall(() => api.post("/tasks", task).then((r) => r.data)),
 
   updateTaskStatus: async (id: number, status: UpdateTaskStatusRequest) => {
     const apiCall = async () => {
