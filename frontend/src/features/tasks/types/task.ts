@@ -31,12 +31,6 @@ export interface UpdateTaskRequest {
   status: TaskStatus;
 }
 
-export interface ApiError {
-  message: string;
-  code?: string;
-  fields?: Array<{ field: string; message: string }>;
-}
-
 export interface PaginationParams {
   skip: number;
   take: number;
