@@ -8,13 +8,14 @@ import type {
   CreateTaskRequest,
   UpdateTaskStatusRequest,
   UpdateTaskRequest,
-  ApiError,
   ApiResponse,
   Task,
   PaginationParams,
 } from "../types/task";
 import { taskApi } from "../api/taskApi";
 import { toast } from "sonner";
+import type { ApiError } from "@/common/types/error";
+import { showApiError } from "@/common/util/error-utils";
 
 export const useTasks = (params: PaginationParams) => {
   return useQuery({
@@ -33,16 +34,7 @@ export const useCreateTask = () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Task created successfully");
     },
-    onError: (error: ApiError) => {
-      const errorMessage = error.message || "Failed to create task";
-      toast.error(errorMessage);
-
-      if (error.fields && error.fields.length > 0) {
-        error.fields.forEach((fieldError) => {
-          toast.error(`${fieldError.field}: ${fieldError.message}`);
-        });
-      }
-    },
+    onError: (error: ApiError) => showApiError(error, "create new task"),
   });
 };
 
@@ -61,9 +53,7 @@ export const useUpdateTaskStatus = () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Task status updated");
     },
-    onError: (error: any) => {
-      toast.error("Failed to update task status");
-    },
+    onError: (error: ApiError) => showApiError(error, "update task status"),
   });
 };
 
@@ -81,16 +71,7 @@ export const useUpdateTask = (): UseMutationResult<
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Task updated successfully");
     },
-    onError: (error: ApiError) => {
-      const errorMessage = error.message || "Failed to update task";
-      toast.error(errorMessage);
-
-      if (error.fields && error.fields.length > 0) {
-        error.fields.forEach((fieldError) => {
-          toast.error(`${fieldError.field}: ${fieldError.message}`);
-        });
-      }
-    },
+    onError: (error: ApiError) => showApiError(error, "update task"),
   });
 };
 
@@ -103,8 +84,6 @@ export const useDeleteTask = () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Task deleted successfully");
     },
-    onError: (error: any) => {
-      toast.error("Failed to delete task");
-    },
+    onError: (error: ApiError) => showApiError(error, "delete task"),
   });
 };

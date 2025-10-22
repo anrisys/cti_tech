@@ -8,7 +8,7 @@ import type {
   UpdateTaskRequest,
   UpdateTaskStatusRequest,
 } from "../types/task";
-
+import { handleApiCall } from "@/common/util/api-utils";
 export const taskApi = {
   getTasks: async (
     params: PaginationParams
@@ -25,51 +25,25 @@ export const taskApi = {
     return response.data;
   },
 
-  createTask: async (task: CreateTaskRequest): Promise<ApiResponse<Task>> => {
-    try {
-      const response = await api.post("/tasks", task);
-      return response.data;
-    } catch (error: any) {
-      const errorData = error.response?.data;
-      throw {
-        message: errorData?.message || "Failed to create task",
-        code: errorData?.code,
-        fields: errorData?.fields,
-      };
-    }
-  },
+  createTask: async (task: CreateTaskRequest) =>
+    handleApiCall(() => api.post("/tasks", task).then((r) => r.data)),
 
-  updateTaskStatus: async (
-    id: number,
-    status: UpdateTaskStatusRequest
-  ): Promise<ApiResponse<Task>> => {
-    const response = await api.patch(`/tasks/${id}/status`, status);
-    return response.data;
+  updateTaskStatus: async (id: number, status: UpdateTaskStatusRequest) => {
+    const apiCall = async () => {
+      const response = await api.patch(`/tasks/${id}/status`, status);
+      return response.data;
+    };
+    handleApiCall(apiCall);
   },
 
   deleteTask: async (id: number): Promise<void> => {
-    await api.delete(`/tasks/${id}`);
-  },
-
-  updateTask: async (
-    id: number,
-    task: UpdateTaskRequest
-  ): Promise<ApiResponse<Task>> => {
-    try {
-      const response = await api.put(`/tasks/${id}`, task);
+    const apiCall = async () => {
+      const response = await api.delete(`/tasks/${id}`);
       return response.data;
-    } catch (error: any) {
-      console.error("Update task error:", error);
-
-      const errorData = error.response?.data;
-      const errorMessage =
-        errorData?.message || error.message || "Failed to update task";
-
-      throw {
-        message: errorMessage,
-        code: errorData?.code || "UPDATE_ERROR",
-        fields: errorData?.fields,
-      };
-    }
+    };
+    handleApiCall(apiCall);
   },
+
+  updateTask: async (id: number, task: UpdateTaskRequest) =>
+    handleApiCall(() => api.put(`/tasks/${id}`, task).then((r) => r.data)),
 };
